@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Jwtauthorize\Jwtauthorize;
+namespace Marcohern\Jwtauthorize;
 
 use Illuminate\Support\ServiceProvider;
-use Jwtauthorize\Jwtauthorize\Console\Commands\JwtauthorizeCommand;
+use Marcohern\Jwtauthorize\Console\Commands\JwtauthorizeCommand;
 
 class JwtauthorizeServiceProvider extends ServiceProvider
 {

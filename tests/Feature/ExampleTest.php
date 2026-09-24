@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Jwtauthorize\Jwtauthorize\Jwtauthorize;
+use Marcohern\Jwtauthorize\Jwtauthorize;
 
 it('resolves the singleton', function () {
     expect(app(Jwtauthorize::class))->toBeInstanceOf(Jwtauthorize::class);

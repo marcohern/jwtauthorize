@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jwtauthorize\Jwtauthorize\Facades;
+namespace Marcohern\Jwtauthorize\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

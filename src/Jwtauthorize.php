@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jwtauthorize\Jwtauthorize;
+namespace Marcohern\Jwtauthorize;
 
 class Jwtauthorize
 {

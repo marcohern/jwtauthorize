@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Jwtauthorize\Jwtauthorize\Tests;
+namespace Marcohern\Jwtauthorize\Tests;
 
-use Jwtauthorize\Jwtauthorize\JwtauthorizeServiceProvider;
+use Marcohern\Jwtauthorize\JwtauthorizeServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra

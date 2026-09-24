@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jwtauthorize\Jwtauthorize\Console\Commands;
+namespace Marcohern\Jwtauthorize\Console\Commands;
 
 use Illuminate\Console\Command;
 
