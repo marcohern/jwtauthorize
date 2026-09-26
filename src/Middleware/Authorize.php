@@ -17,12 +17,12 @@ class Authorize
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function _handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next): Response
     {
       return $next($request);
     }
 
-    public function handle(Request $request, Closure $next): Response
+    public function _handle(Request $request, Closure $next): Response
     {
       $payload = auth()->payload();
       $policies = $payload['scope'];
