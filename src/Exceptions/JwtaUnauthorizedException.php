@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Marcohern\Jwtauthorize\Exceptions;
 use \Exceptions;
+use Marcohern\Jwtauthorize\Exceptions\;
+
 
 class JwtaUnauthorizedException extends JwtAuthorizeException
 {
