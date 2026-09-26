@@ -17,12 +17,12 @@ class Authorize
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function _handle(Request $request, Closure $next): Response
     {
       return $next($request);
     }
 
-    public function _handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next): Response
     {
       $payload = auth()->payload();
       $policies = $payload['scope'];
@@ -31,7 +31,8 @@ class Authorize
       if ($policies) {
         $method = $request->method();
         $uri = $request->getRequestUri();
-        if ($this->isAllowed($method, $uri, $policies)) return $next($request);
+        if ($this->isAllowed($method, $uri, $policies))
+          return $next($request);
       }
       throw new AuthorizationException('Access denied.');
     }
@@ -43,7 +44,7 @@ class Authorize
         $scopeMethod = $policy['m'];
         $uriMethod = $policy['r'];
         $methodMatches = Str::match("/$scopeMethod/",$method);
-        $uriMatches = Str::match("/$uriMethod/",$uri);
+        $uriMatches = Str::match("$uriMethod",$uri);
         if ($methodMatches && $uriMatches) return $policies;
       }
       return null;
@@ -69,8 +70,8 @@ class Authorize
       if (!is_array($policies)) return null;
       $policy = $this->findDeepMatch($method, $uri, $policies);
       if (!is_null($policy)) {
-        if ($policy['a']=='a') return true;
-        if ($policy['a']=='d') return false;
+        if ($policy['a']=='allow') return true;
+        if ($policy['a']=='deny') return false;
       }
       return false;
     }
