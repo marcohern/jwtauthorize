@@ -14,6 +14,7 @@ class Parser {
   private const METHOD_LIST = '(('.self::METHODS.'),)*('.self::METHODS.')';
   private const REGEX = '/^('.self::ACTIONS.') (\*|'.self::METHOD_LIST.') ([^\s]+)$/';
 
+  
   /**
    * Create a new class instance.
    */
