@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-
+use Illuminate\Support\Collection;
 use Marcohern\Jwtauthorize\Policy;
 
 test('[Policy::__construct] can build an instance of Policy', function (string $action, string $methods, string $pathex) {
@@ -66,7 +66,7 @@ test('[Policy::from] can build an instance of Policy recursively', function (str
 test('[Policy::fromList] can parse a list of valid Policies', function (array $source, int $count) {
   $policies = Policy::fromList($source);
 
-  expect(is_array($policies))->toBeTrue();
+  expect($policies instanceof Collection)->toBeTrue();
   expect($policies[0] instanceof Policy)->toBeTrue();
   expect(count($policies))->toBe($count);
   

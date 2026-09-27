@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace Marcohern\Jwtauthorize;
 
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Illuminate\Support\Collection;
 
 class Policy {
   public readonly string $action;
   public readonly string $methods;
   public readonly string $pathex;
-  public readonly array $children;
+  public readonly Collection $children;
 
   private static Parser|null $parser = null;
 
@@ -25,12 +26,12 @@ class Policy {
     return new self($policy->action, $policy->methods, $policy->pathex, $children);
   }
 
-  protected static function fromArray(array $policy, array $children): self
+  protected static function fromArray(array $policy, Collection|array $children): self
   {
     return new self($policy[0], $policy[1], $policy[2], $children);
   }
 
-  protected static function fromString(string $policy, array $children): self
+  protected static function fromString(string $policy, Collection|array $children): self
   {
     $parser = self::getParser();
     return $parser->extract($policy, $children);
@@ -41,7 +42,7 @@ class Policy {
     return new self($policy->action, $policy->methods, $policy->pathex, $policy->children);
   }
 
-  public static function from($policy, array $children=[]): self
+  public static function from($policy, Collection|array $children=[]): self
   {
     if ($policy instanceof self) return $policy;
     if ($policy instanceof \stdClass) return self::fromStdClass($policy);
@@ -49,7 +50,7 @@ class Policy {
     throw new BadRequestHttpException('unable to cast ['.get_class($policy).'] to type ['.self::class.']');
   }
 
-  public static function fromList(array $policies): array
+  public static function fromList(Collection|array $policies): Collection
   {
     $list = [];
     foreach ($policies as $key => $value) {
@@ -58,10 +59,10 @@ class Policy {
         $list[] = self::from($key, $value);
       }
     }
-    return $list;
+    return collect($list);
   }
 
-  public function __construct(string $action, string $methods, string $pathex, array $children=[])
+  public function __construct(string $action, string $methods, string $pathex, Collection|array $children=[])
   {
     $this->action = $action;
     $this->methods = $methods;

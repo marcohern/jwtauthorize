@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Marcohern\Jwtauthorize\Parser;
 use Marcohern\Jwtauthorize\Exceptions\JwtaParserException;
 
