@@ -11,9 +11,11 @@ class Policy {
   public readonly string $pathex;
   public readonly array $children;
 
-  protected static function fromStdClass(stdClass $policy): self
+  protected static function fromStdClass(\stdClass $policy): self
   {
-    return new self($policy->action, $policy->methods, $policy->pathex, $policy->children);
+    $children = [];
+    if (isset($policy->children)) $children = $policy->children;
+    return new self($policy->action, $policy->methods, $policy->pathex, $children);
   }
 
   protected static function fromArray(array $policy, array $children): self
@@ -36,8 +38,8 @@ class Policy {
   {
     if (is_string($policy)) return self::fromString($policy,$children);
     //if (is_array($policy)) return self::fromArray($policy,$children);
-    if ($policy instanceof stdClass) return self::fromStdClass($policy);
-    if ($policy instanceof self) return new self($policy->action, $policy->methods, $policy->pathex, $children);
+    if ($policy instanceof \stdClass) return self::fromStdClass($policy);
+    if ($policy instanceof self) return $policy;
     throw new BadRequestHttpException('unable to cast ['.get_class($policy).'] to type ['.self::class.']');
   }
 
