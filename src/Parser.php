@@ -59,11 +59,7 @@ class Parser {
     if ($methodMatchEval !== 1) return false;
     
     if ($methods == '*') $methodMatch = true;
-    else
-    {
-      if ($matches[0]==$method) $methodMatch = true;
-        
-    }
+    else if ($matches[0]==$method) $methodMatch = true;
 
     $pathMatchEval = preg_match($policy->pathex, $uri);
     if ($pathMatchEval === 1) $pathsMatch = true;
