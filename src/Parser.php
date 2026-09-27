@@ -58,7 +58,7 @@ class Parser {
       //Make sure method is at least valid
       if (preg_match("/$method/", self::METHODS)===1) return true;
     }
-    //Otherwise, if it is a propper method (eg: GET, POST...)
+    //Otherwise, if the policy contains propper method (eg: GET, POST...)
     else
     {
       //Make sure the method maches one in the policy

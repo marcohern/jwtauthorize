@@ -12,8 +12,8 @@ it('[Policy::__construct] can build an instance of Policy', function (string $ac
     expect($policy->methods)->toBe($methods);
     expect($policy->pathex)->toBe($pathex);
 })->with([
-  ['action'=>'allow','methods'=>'*'  ,'pathex'=>'/.*/'],
-  ['action'=>'deny' ,'methods'=>'GET','pathex'=>'/\/admin(\/.*)?/'],
+  ['allow','*'  ,'/.*/'],
+  ['deny' ,'GET','/\/admin(\/.*)?/'],
 ]);
 
 it('[Policy::from] can build an instance of Policy recursively', function (string $key, array $children, int $childCount) {

@@ -16,7 +16,7 @@ afterEach(function ()
   
 });
 
-it('[Parser::isValid] can validate propper authorization string', function (string $policy) {
+it('[Parser::isValid] can detect valid authorization strings', function (string $policy) {
     //Test
     $isValid = $this->parser->isValid($policy);
     
@@ -28,6 +28,18 @@ it('[Parser::isValid] can validate propper authorization string', function (stri
   ['policy' => 'deny * /\/admin(\/.*)?/'], //deny /admin or /admin/*
   ['policy' => 'allow * /\/entity(\/.*)?/'], //allow /entity or /entity/*
   ['policy' => 'deny POST /\/entity(\/.*)?/'], //deny POST /entity or /entity/*
+]);
+
+it('[Parser::isValid] can detect invalid authorization strings', function (string $policy) {
+    //Test
+    $isValid = $this->parser->isValid($policy);
+    
+    //Assert
+    expect($isValid)->toBeFalse();
+})->with([
+  ['policy' => 'allow PURE /.*/'],
+  ['policy' => 'allow GE /.*/'],
+  ['policy' => 'allow GETT /.*/'],
 ]);
 
 it('[Parser::extract] can extract components from valid authorization string', function (string $policy, array $components) {
@@ -59,6 +71,8 @@ it('[Parser::extract] cannot extract components from invalid authorization strin
   'allow *',
   'allow * ',
   'allow *     ',
+  'allow GE /.*/',
+  'allow GETT /.*/',
   'allow GET,POST,PULL /.*/', //PULL is not a valid method
   'allow *,GET /.*/', //methods *,GET is invalid
   'allow + /.*/', //+ instead of * is rejected
