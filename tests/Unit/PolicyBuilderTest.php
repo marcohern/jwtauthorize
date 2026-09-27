@@ -3,10 +3,23 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Collection;
+use Marcohern\Jwtauthorize\Parser;
 use Marcohern\Jwtauthorize\Policy;
+use Marcohern\Jwtauthorize\PolicyBuilder;
+
+beforeEach(function () {
+    $this->parser = new Parser;
+    $this->builder = new PolicyBuilder($this->parser);
+});
+
+// Runs AFTER every test in this file
+afterEach(function ()
+{
+  
+});
 
 test('[Policy::__construct] can build an instance of Policy', function (string $action, string $methods, string $pathex) {
-    $policy = new Policy($action, $methods, $pathex);
+    $policy = new Policy($action, $methods, $pathex, collect([]));
 
     expect($policy->action)->toBe($action);
     expect($policy->methods)->toBe($methods);
@@ -16,8 +29,9 @@ test('[Policy::__construct] can build an instance of Policy', function (string $
   ['deny' ,'GET','/\/admin(\/.*)?/'],
 ]);
 
-test('[Policy::from] can build an instance of Policy from string', function (string $source, string $action, string $methods, string $pathex) {
-    $policy = Policy::from($source);
+test('[PolicyBuilder::from] can build an instance of Policy from string', function (string $source, string $action, string $methods, string $pathex) {
+
+    $policy = $this->builder->from($source);
 
     expect($policy->action)->toBe($action);
     expect($policy->methods)->toBe($methods);
@@ -28,10 +42,10 @@ test('[Policy::from] can build an instance of Policy from string', function (str
   ['allow DELETE /\/somethig\/\d+/', 'allow', 'DELETE', '/\/somethig\/\d+/'],
 ]);
 
-test('[Policy::from] can build an instance of Policy from stdclass', function (array $source, string $action, string $methods, string $pathex) {
+test('[PolicyBuilder::from] can build an instance of Policy from stdclass', function (array $source, string $action, string $methods, string $pathex) {
     $object = (object) $source;
 
-    $policy = Policy::from($object);
+    $policy = $this->builder->from($object);
 
     expect($policy->action)->toBe($action);
     expect($policy->methods)->toBe($methods);
@@ -40,9 +54,9 @@ test('[Policy::from] can build an instance of Policy from stdclass', function (a
   [['action'=>'allow','methods'=>'*'   ,'pathex'=>'/.*/'], 'allow', '*'     , '/.*/'],
   [['action'=>'deny' ,'methods'=>'POST','pathex'=>'/\/admin/'], 'deny','POST', '/\/admin/'],
 ]);
-test('[Policy::from] can build an instance of Policy from Policy', function (Policy $source, string $action, string $methods, string $pathex)
+test('[PolicyBuilder::from] can build an instance of Policy from Policy', function (Policy $source, string $action, string $methods, string $pathex)
 {
-    $policy = Policy::from($source);
+    $policy = $this->builder->from($source);
 
     expect($policy->action)->toBe($action);
     expect($policy->methods)->toBe($methods);
@@ -51,8 +65,8 @@ test('[Policy::from] can build an instance of Policy from Policy', function (Pol
   [new Policy('allow','*','/.*/'), 'allow', '*'     , '/.*/'],
 ]);
 
-test('[Policy::from] can build an instance of Policy recursively', function (string $key, array $children, int $childCount) {
-    $policy = Policy::from($key, $children);
+test('[PolicyBuilder::from] can build an instance of Policy recursively', function (string $key, array $children, int $childCount) {
+    $policy = $this->builder->from($key, $children);
 
     expect(count($policy->children))->toBe($childCount);
 })->with([
@@ -63,8 +77,8 @@ test('[Policy::from] can build an instance of Policy recursively', function (str
   ], 3],
 ]);
 
-test('[Policy::fromList] can parse a list of valid Policies', function (array $source, int $count) {
-  $policies = Policy::fromList($source);
+test('[PolicyBuilder::fromList] can parse a list of valid Policies', function (array $source, int $count) {
+  $policies = $this->builder->fromList($source);
 
   expect($policies instanceof Collection)->toBeTrue();
   expect($policies[0] instanceof Policy)->toBeTrue();

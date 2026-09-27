@@ -46,10 +46,10 @@ class Parser {
     throw new JwtaParserException('Policy invalid.');
   }
 
-  public function extract(string $policy, array $children = []): Policy
+  public function extract(string $policy, Collection|array $children = []): Policy
   {
     list($action, $methods, $pathex) = $this->extractElements($policy);
-    return new Policy($action, $methods, $pathex, $children);
+    return new Policy($action, $methods, $pathex, collect($children));
   }
 
   protected function methodMatches(Policy $policy, string $method)
