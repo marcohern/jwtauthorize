@@ -16,7 +16,7 @@ it('[Policy::__construct] can build an instance of Policy', function (string $ac
   ['action'=>'deny' ,'methods'=>'GET','pathex'=>'/\/admin(\/.*)?/'],
 ]);
 
-it('[Policy::from] can build an instance of AuthorizePolicy recursively', function (string $key, array $children, int $childCount) {
+it('[Policy::from] can build an instance of Policy recursively', function (string $key, array $children, int $childCount) {
     $policy = Policy::from($key, $children);
 
     expect(count($policy->children))->toBe($childCount);

@@ -32,12 +32,12 @@ it('[Parser::isValid] can validate propper authorization string', function (stri
 
 it('[Parser::extract] can extract components from valid authorization string', function (string $policy, array $components) {
     //Test
-    list($action,$methods,$pathex) = $this->parser->extract($policy);
+    $policy = $this->parser->extract($policy);
 
     //Assert
-    expect($action)->toBe($components[0]);
-    expect($methods)->toBe($components[1]);
-    expect($pathex)->toBe($components[2]);
+    expect($policy->action)->toBe($components[0]);
+    expect($policy->methods)->toBe($components[1]);
+    expect($policy->pathex)->toBe($components[2]);
 })->with([
   ['policy' => 'allow * /.*/', 'components' => ['allow','*','/.*/']], //allow everything,
   ['policy' => 'allow * //', 'components' => ['allow','*','//']], //allow empty,
@@ -52,7 +52,7 @@ it('[Parser::extract] can extract components from valid authorization string', f
 it('[Parser::extract] cannot extract components from invalid authorization string', function (string $policy) {
     
     //Test
-    list($action,$methods,$pathex) = $this->parser->extract($policy);
+    $policy = $this->parser->extract($policy);
 
 })->throws(JwtaParserException::class,'Policy invalid.')->with([
   
@@ -70,7 +70,7 @@ it('[Parser::extract] cannot extract components from invalid authorization strin
 it('[Parser::extract] cannot extract components from authorization string that have an invalid regex as path', function (string $policy) {
     
     //Test
-    list($action,$methods,$pathex) = $this->parser->extract($policy);
+    $policy = $this->parser->extract($policy);
 
 })->throws(JwtaParserException::class,'Path in policy invalid.')->with([
   'allow * /', // '/' is not a valid regex
