@@ -5,7 +5,8 @@ namespace Marcohern\Jwtauthorize;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Marcohern\Jwtauthorize\Exceptions\JwtaParserException;
+
 
 class Parser {
   private const ACTIONS = 'allow|deny';
@@ -36,46 +37,35 @@ class Parser {
       set_error_handler(static fn() => true);
       $isInvalid = (@preg_match($pathex, 'x') === false);
       restore_error_handler();
-      if ($isInvalid) throw new BadRequestHttpException('Path in policy invalid. ['.preg_last_error().'] '.preg_last_error_msg());
+      if ($isInvalid) throw new JwtaParserException('Path in policy invalid. ['.preg_last_error().'] '.preg_last_error_msg());
       return [$groups[1],$groups[2],$pathex];
       
       return $results;
     }
-    throw new BadRequestHttpException('Policy invalid.');
+    throw new JwtaParserException('Policy invalid.');
   }
 
-  public function isMatch(array|Policy $policy, string $method, string $uri): bool
+  public function isMatch(Policy $policy, string $method, string $uri): bool
   {
-    $actions = null;
-    $methods = null;
-    $pathex  = null;
-    if (is_a($policy, Policy::class))
-    {
-      $actions = $policy->action;
-      $methods = $policy->methods;
-      $pathex  = $policy->pathex;
-    }
-    else if (is_array($policy))
-    {
-      $actions = $policy[0];
-      $methods = $policy[1];
-      $pathex  = $policy[2];
-    }
+    
+    $actions = $policy->action;
+    $methods = $policy->methods;
+    $pathex  = $policy->pathex;
     
     $methodMatch = false;
     $pathsMatch = false;
     
+    $methodMatchEval = preg_match("/$method/", $policy->methods, $matches);
+    if ($methodMatchEval !== 1) return false;
+    
     if ($methods == '*') $methodMatch = true;
     else
     {
-      $methodMatchEval = preg_match("/$method/", $methods, $matches);
-      if ($methodMatchEval === 1)
-      {
-        if ($matches[0]==$method) $methodMatch = true;
-      }
+      if ($matches[0]==$method) $methodMatch = true;
+        
     }
 
-    $pathMatchEval = preg_match($pathex, $uri);
+    $pathMatchEval = preg_match($policy->pathex, $uri);
     if ($pathMatchEval === 1) $pathsMatch = true;
 
     if ($pathsMatch && $methodMatch) return true;

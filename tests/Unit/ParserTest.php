@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 
 use Marcohern\Jwtauthorize\Parser;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Marcohern\Jwtauthorize\Exceptions\JwtaParserException;
 
 beforeEach(function () {
     $this->parser = new Parser;
@@ -54,18 +54,17 @@ it('[Parser::extract] cannot extract components from invalid authorization strin
     //Test
     list($action,$methods,$pathex) = $this->parser->extract($policy);
 
-})->throws(BadRequestHttpException::class,'Policy invalid.')->with([
+})->throws(JwtaParserException::class,'Policy invalid.')->with([
   
-  ['policy' => 'allow *'],
-  ['policy' => 'allow * '],
-  ['policy' => 'allow *     '],
-  ['policy' => 'allow GET,POST,PULL /.*/'], //PULL is not a valid method
-  ['policy' => 'allow *,GET /.*/'], //methods *,GET is invalid
-  ['policy' => 'allow + /.*/'], //+ instead of * is rejected
-  ['policy' => 'accept * /abc/'], //accept is not a valid action
-  ['policy' => 'reject POST /edf/'], //reject is not a valid action
-  ['policy' => 'allow PUST /ghj/'],//PUST is not a valid method
-  
+  'allow *',
+  'allow * ',
+  'allow *     ',
+  'allow GET,POST,PULL /.*/', //PULL is not a valid method
+  'allow *,GET /.*/', //methods *,GET is invalid
+  'allow + /.*/', //+ instead of * is rejected
+  'accept * /abc/', //accept is not a valid action
+  'reject POST /edf/', //reject is not a valid action
+  'allow PUST /ghj/',//PUST is not a valid method
 ]);
 
 it('[Parser::extract] cannot extract components from authorization string that have an invalid regex as path', function (string $policy) {
@@ -73,13 +72,13 @@ it('[Parser::extract] cannot extract components from authorization string that h
     //Test
     list($action,$methods,$pathex) = $this->parser->extract($policy);
 
-})->throws(BadRequestHttpException::class,'Path in policy invalid.')->with([
-  ['policy' => 'allow * /'], // '/' is not a valid regex
-  ['policy' => 'allow * /a'], // '/a' is not a valid regex
-  ['policy' => 'allow GET abc'], // missing '/':'/abc/'
-  ['policy' => 'allow GET /(/'], // open parenthesis but not closing
-  ['policy' => 'allow GET /[/'], // open square brackets but not closing
-  ['policy' => 'allow GET /?/'], // '?' is a reserved char
-  ['policy' => 'allow GET /*/'], // '*' is a reserved char
-  ['policy' => 'allow GET /+/'], // '+' is a reserved char
+})->throws(JwtaParserException::class,'Path in policy invalid.')->with([
+  'allow * /', // '/' is not a valid regex
+  'allow * /a', // '/a' is not a valid regex
+  'allow GET abc', // missing '/':'/abc/'
+  'allow GET /(/', // open parenthesis but not closing
+  'allow GET /[/', // open square brackets but not closing
+  'allow GET /?/', // '?' is a reserved char
+  'allow GET /*/', // '*' is a reserved char
+  'allow GET /+/', // '+' is a reserved char
 ]);

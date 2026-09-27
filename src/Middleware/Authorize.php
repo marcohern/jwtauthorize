@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Marcohern\Jwtauthorize\Middleware;
 
 use Closure;
-use Illuminate\Auth\Access\AuthorizationException;
+use Marcohern\Jwtauthorize\Exceptions\JwtaParserException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,7 +34,7 @@ class Authorize
         if ($this->isAllowed($method, $uri, $policies))
           return $next($request);
       }
-      throw new AuthorizationException('Access denied.');
+      throw new JwtaParserException('Access denied.');
     }
 
     protected function findMatch(string $method,string $uri, array $policies): array|null

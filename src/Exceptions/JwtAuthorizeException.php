@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Marcohern\Jwtauthorize\Exceptions\JwtaUnauthorizedException;
-use \Exceptions;
+namespace Marcohern\Jwtauthorize\Exceptions;
 
-class JwtAuthorizeException extends Exceptions
+use Exception;
+
+class JwtAuthorizeException extends Exception
 {
   protected $code = 401;
 }
