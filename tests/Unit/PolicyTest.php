@@ -56,9 +56,20 @@ test('[Policy::from] can build an instance of Policy recursively', function (str
 
     expect(count($policy->children))->toBe($childCount);
 })->with([
-  ['key' => 'allow * /.*/','children' => [
+  ['allow * /.*/',[
       'deny * /\/admin(\/.*)?/',
       'deny * /\/users(\/.*)?/',
       'deny * /\/orgs(\/.*)?/' => ['allow * /\/orgs\/reports1(\/.*)?/','allow * /\/orgs\/reports2(\/.*)?/'],
-  ], 'childCount'=> 3],
+  ], 3],
+]);
+
+test('[Policy::fromList] can parse a list of valid Policies', function (array $source, int $count) {
+  $policies = Policy::fromList($source);
+
+  expect(is_array($policies))->toBeTrue();
+  expect($policies[0] instanceof Policy)->toBeTrue();
+  expect(count($policies))->toBe($count);
+  
+})->with([
+  [['allow * /.*/', 'deny POST /.*/', 'deny * /\/admin(\/.*)?/'], 3]
 ]);
