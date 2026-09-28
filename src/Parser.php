@@ -43,6 +43,11 @@ class Parser {
   private const REGEX = '/^('.self::ACTIONS.') (\*|'.self::METHOD_LIST.') ([^\s]+)$/';
 
   /**
+   * Closing delimiter for each bracket-style regex delimiter.
+   */
+  private const BRACKETS = ['(' => ')', '{' => '}', '[' => ']', '<' => '>'];
+
+  /**
    * Check whether a policy string follows the policy grammar.
    *
    * Only the grammar is checked; the pathex is not compiled, so a string
@@ -68,7 +73,6 @@ class Parser {
    */
   protected function extractElements(string $policy): array
   {
-    $results = null;
     $itMatches = preg_match(self::REGEX, $policy, $groups);
     if ($itMatches === 1)
     {
@@ -78,8 +82,6 @@ class Parser {
       restore_error_handler();
       if ($isInvalid) throw new JwtaParserException('Path in policy invalid. ['.preg_last_error().'] '.preg_last_error_msg());
       return [$groups[1],$groups[2],$pathex];
-      
-      return $results;
     }
     throw new JwtaParserException('Policy invalid.');
   }
@@ -103,39 +105,62 @@ class Parser {
    * Check whether an HTTP method is covered by a policy.
    *
    * A `*` policy accepts any method listed in {@see Parser::METHODS};
-   * otherwise the method must appear in the policy's method list.
+   * otherwise the method must be one of the policy's listed methods.
+   * Methods are compared exactly, so `GE` does not match `GET`.
    *
    * @param  Policy  $policy  Policy to check against.
    * @param  string  $method  Request HTTP method, e.g. `GET`.
    * @return bool True when the method is covered.
    */
-  protected function methodMatches(Policy $policy, string $method)
+  protected function methodMatches(Policy $policy, string $method): bool
   {
-    //If policy is * (any method)
-    if ($policy->methods === '*') {
-      //Make sure method is at least valid
-      if (preg_match("/$method/", self::METHODS)===1) return true;
-    }
-    //Otherwise, if the policy contains propper method (eg: GET, POST...)
-    else
-    {
-      //Make sure the method maches one in the policy
-      if (preg_match("/$method/", $policy->methods)===1) return true;
-    }
-    return false;
+    $methods = $policy->methods === '*'
+      ? explode('|', self::METHODS)
+      : explode(',', $policy->methods);
+
+    return in_array($method, $methods, true);
   }
 
   /**
-   * Check whether a URI matches the policy's pathex.
+   * Check whether a path matches the policy's pathex.
+   *
+   * The pathex must match the whole path: it is anchored at both ends, so
+   * `/\/users/` matches `/users` but not `/users/1` or `/admin/users`.
    *
    * @param  Policy  $policy  Policy to check against.
-   * @param  string  $uri  Request URI, e.g. `/admin/users`.
-   * @return bool True when the URI matches.
+   * @param  string  $uri  Decoded request path without query string, e.g. `/admin/users`.
+   * @return bool True when the path matches.
+   *
+   * @throws JwtaParserException When the pathex is invalid or fails to evaluate
+   *                             (e.g. hits the PCRE backtrack limit).
    */
-  protected function uriMatches(Policy $policy, string $uri)
+  protected function uriMatches(Policy $policy, string $uri): bool
   {
-    if (preg_match($policy->pathex, $uri) === 1) return true;
-    return false;
+    $result = @preg_match($this->anchor($policy->pathex), $uri);
+    if ($result === false) throw new JwtaParserException('Path match failed. ['.preg_last_error().'] '.preg_last_error_msg());
+    return $result === 1;
+  }
+
+  /**
+   * Anchor a delimited regex so it only matches whole strings.
+   *
+   * `/\/users/i` becomes `/^(?:\/users)\z/i`.
+   *
+   * @param  string  $pathex  Delimited regular expression, optionally followed by flags.
+   * @return string The anchored regular expression.
+   *
+   * @throws JwtaParserException When the pathex has no closing delimiter.
+   */
+  protected function anchor(string $pathex): string
+  {
+    $open = $pathex[0] ?? '';
+    $close = self::BRACKETS[$open] ?? $open;
+    $end = $open === '' ? false : strrpos($pathex, $close, 1);
+    if ($end === false) throw new JwtaParserException('Path in policy invalid.');
+
+    $body = substr($pathex, 1, $end - 1);
+    $flags = substr($pathex, $end + 1);
+    return $open.'^(?:'.$body.')\z'.$close.$flags;
   }
 
   /**
@@ -145,8 +170,10 @@ class Parser {
    *
    * @param  Policy  $policy  Policy to check against.
    * @param  string  $method  Request HTTP method.
-   * @param  string  $uri  Request URI.
-   * @return bool True when both the method and the URI match.
+   * @param  string  $uri  Decoded request path without query string.
+   * @return bool True when both the method and the path match.
+   *
+   * @throws JwtaParserException When the pathex is invalid or fails to evaluate.
    */
   public function isMatch(Policy $policy, string $method, string $uri): bool
   { 

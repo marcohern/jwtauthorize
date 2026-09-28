@@ -3,10 +3,13 @@
 declare(strict_types=1);
 
 namespace Marcohern\Jwtauthorize\Exceptions;
+
 /**
- * Thrown when the request is not allowed by the token's policies.
+ * Thrown when the request carries no valid token (HTTP 401).
  */
 class JwtaUnauthorizedException extends JwtAuthorizeException
 {
-  protected $code = 400;
+  protected const STATUS = 401;
+
+  protected const HEADERS = ['WWW-Authenticate' => 'Bearer'];
 }

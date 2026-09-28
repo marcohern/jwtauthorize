@@ -11,4 +11,5 @@ namespace Marcohern\Jwtauthorize\Exceptions;
  */
 class JwtaRoleException extends JwtAuthorizeException
 {
+  protected const STATUS = 422;
 }

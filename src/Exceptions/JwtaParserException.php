@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Marcohern\Jwtauthorize\Exceptions;
 
 /**
- * Thrown when a policy string is malformed or its path regex is invalid.
+ * Thrown when a policy string is malformed or its path regex is invalid or fails to evaluate.
  *
  * @see \Marcohern\Jwtauthorize\Parser
  */
 class JwtaParserException extends JwtAuthorizeException
 {
-  protected $code = 403;
+  protected const STATUS = 422;
 }
