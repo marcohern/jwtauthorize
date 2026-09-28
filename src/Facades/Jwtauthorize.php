@@ -7,12 +7,14 @@ namespace Marcohern\Jwtauthorize\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Jwtauthorize\Jwtauthorize\Jwtauthorize
+ * @method static class-string<\Marcohern\Jwtauthorize\Middleware\Authorize> middleware()
+ *
+ * @see \Marcohern\Jwtauthorize\Jwtauthorize
  */
 class Jwtauthorize extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \Jwtauthorize\Jwtauthorize\Jwtauthorize::class;
+        return \Marcohern\Jwtauthorize\Jwtauthorize::class;
     }
 }
