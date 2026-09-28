@@ -17,6 +17,7 @@ class JwtauthorizeServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/jwtauthorize.php', 'jwtauthorize');
 
         $this->app->singleton(Jwtauthorize::class);
+        $this->app->singleton(PolicyManager::class);
     }
 
     /**

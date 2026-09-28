@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
  * Instances are normally created by {@see PolicyBuilder} or {@see Parser::extract()}
  * from a policy string such as `deny POST /\/admin(\/.*)?/`.
  */
-class Policy {
+class Policy implements \JsonSerializable {
   /**
    * @var string Either `allow` or `deny`.
    */
@@ -49,5 +49,20 @@ class Policy {
     $this->methods = $methods;
     $this->pathex = $pathex;
     $this->children = $children;
+  }
+
+  /**
+   * Serialize the policy, and its children recursively, for `json_encode()`.
+   *
+   * @return array{action: string, methods: string, pathex: string, children: Collection<int, Policy>}
+   */
+  public function jsonSerialize(): array
+  {
+    return [
+      'action' => $this->action,
+      'methods' => $this->methods,
+      'pathex' => $this->pathex,
+      'children' => $this->children->values(),
+    ];
   }
 }
