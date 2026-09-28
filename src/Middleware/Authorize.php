@@ -18,13 +18,15 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Middleware that authorizes requests against the policies in the JWT `scope` claim.
  *
- * The scope is a list of policies, each with the keys:
- *  - `a`: action, `allow` or `deny`
- *  - `m`: HTTP method pattern
- *  - `r`: URI regular expression
- *  - `c`: optional list of child policies, using the same keys
+ * The scope is a list of policy strings (see {@see Parser}). A string key holds
+ * a policy whose value is the list of its children (see {@see PolicyBuilder::fromList()}):
  *
- * The deepest matching policy decides the outcome.
+ * ```php
+ * ['allow * /.*\/' => ['deny * /\/admin(\/.*)?/']]
+ * ```
+ *
+ * The deepest matching policy decides the outcome; when a policy matches but
+ * none of its children do, the policy itself decides.
  */
 class Authorize
 {
@@ -77,7 +79,7 @@ class Authorize
     }
 
     /**
-     * Find the most specific matching policy, descending into children (`c`).
+     * Find the most specific matching policy, descending into its children.
      *
      * @param  string  $method  Request HTTP method.
      * @param  string  $uri  Request URI.
@@ -91,7 +93,8 @@ class Authorize
       {
         if ($policy->children->count() > 0)
         {
-          return $this->findDeepMatch($method, $uri, $policy->children);
+          $childPolicy = $this->findDeepMatch($method, $uri, $policy->children);
+          if (!is_null($childPolicy)) return $childPolicy;
         }
         return $policy;
       }
