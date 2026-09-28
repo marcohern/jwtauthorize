@@ -6,9 +6,14 @@ namespace Marcohern\Jwtauthorize\Middleware;
 
 use Closure;
 use Marcohern\Jwtauthorize\Exceptions\JwtaParserException;
+use Marcohern\Jwtauthorize\Parser;
+use Marcohern\Jwtauthorize\Policy;
+use Marcohern\Jwtauthorize\PolicyBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
+
 
 /**
  * Middleware that authorizes requests against the policies in the JWT `scope` claim.
@@ -23,38 +28,32 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class Authorize
 {
-    /**
-     * Handle an incoming request.
-     *
-     * Currently a pass-through: every request is allowed. The policy check
-     * lives in {@see Authorize::_handle()} until it is wired in.
-     *
-     * @param  Closure(Request): (Response)  $next
-     */
-    public function handle(Request $request, Closure $next): Response
-    {
-      return $next($request);
-    }
+  public function __construct(
+    private readonly PolicyBuilder $builder,
+    private readonly Parser $parser)
+  {
 
+  }
     /**
-     * Authorize the request against the token's `scope` policies.
+     *Authorize the request against the token's `scope` policies.
      *
      * @param  Closure(Request): (Response)  $next
      *
      * @throws JwtaParserException When the scope is empty or the request is not allowed.
      */
-    public function _handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next): Response
     {
       $payload = auth()->payload();
-      $policies = $payload['scope'];
-      $methodMatches = false;
-      $uriMatches = false;
-      if ($policies) {
-        $method = $request->method();
-        $uri = $request->getRequestUri();
-        if ($this->isAllowed($method, $uri, $policies))
-          return $next($request);
-      }
+      $scope = $payload->get('scope');
+      if (empty($scope)) throw new JwtaParserException('Access denied.');
+
+      $policies = $this->builder->fromList($scope);
+      $method = $request->method();
+      $uri = $request->getRequestUri();
+      $policy = $this->findDeepMatch($method, $uri, $policies);
+      if (is_null($policy)) throw new JwtaParserException('Access denied.');
+
+      if ($policy->action === 'allow') return $next($request);
       throw new JwtaParserException('Access denied.');
     }
 
@@ -63,18 +62,16 @@ class Authorize
      *
      * @param  string  $method  Request HTTP method.
      * @param  string  $uri  Request URI.
-     * @param  array<int, array{a: string, m: string, r: string, c?: array}>  $policies  Scope policies.
-     * @return array|null The matching policy, or null when none match.
+     * @param  Collection $policies  Scope policies.
+     * @return Policy|null The matching policy, or null when none match.
      */
-    protected function findMatch(string $method,string $uri, array $policies): array|null
+    protected function findMatch(string $method,string $uri, Collection $policies): Policy|null
     {
       foreach ($policies as $policy)
       {
-        $scopeMethod = $policy['m'];
-        $uriMethod = $policy['r'];
-        $methodMatches = Str::match("/$scopeMethod/",$method);
-        $uriMatches = Str::match("$uriMethod",$uri);
-        if ($methodMatches && $uriMatches) return $policies;
+        $scopeMethod = $policy->methods;
+        $uriMethod = $policy->pathex;
+        if ($this->parser->isMatch($policy, $method, $uri)) return $policy;
       }
       return null;
     }
@@ -84,40 +81,20 @@ class Authorize
      *
      * @param  string  $method  Request HTTP method.
      * @param  string  $uri  Request URI.
-     * @param  array<int, array{a: string, m: string, r: string, c?: array}>  $policies  Scope policies.
-     * @return array|null The deepest matching policy, or null when none match.
+     * @param  Collection $policies  Scope policies.
+     * @return Policy|null The deepest matching policy, or null when none match.
      */
-    protected function findDeepMatch(string $method,string $uri,array $policies): array|null
+    protected function findDeepMatch(string $method,string $uri,Collection $policies): Policy|null
     {
       $policy = $this->findMatch($method, $uri, $policies);
       if (!is_null($policy))
       {
-        if (array_key_exists('c', $policy))
+        if ($policy->children->count() > 0)
         {
-          $childPolicy = $this->findDeepMatch($method, $uri, $policy['c']);
-          if ($childPolicy) return $childPolicy;
+          return $this->findDeepMatch($method, $uri, $policy->children);
         }
         return $policy;
       }
       return null;
-    }
-
-    /**
-     * Decide whether the request is allowed by the scope policies.
-     *
-     * @param  string  $method  Request HTTP method.
-     * @param  string  $uri  Request URI.
-     * @param  mixed  $policies  Scope policies; anything other than an array is rejected.
-     * @return bool True only when the deepest matching policy is `allow`.
-     */
-    protected function isAllowed(string $method,string $uri, $policies): bool
-    {
-      if (!is_array($policies)) return null;
-      $policy = $this->findDeepMatch($method, $uri, $policies);
-      if (!is_null($policy)) {
-        if ($policy['a']=='allow') return true;
-        if ($policy['a']=='deny') return false;
-      }
-      return false;
     }
 }
