@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Marcohern\Jwtauthorize;
 
 use Illuminate\Support\ServiceProvider;
-use Marcohern\Jwtauthorize\Console\Commands\JwtauthorizeCommand;
+use Marcohern\Jwtauthorize\Console\Commands\RoleCreateCommand;
+use Marcohern\Jwtauthorize\Console\Commands\RoleDeleteCommand;
+use Marcohern\Jwtauthorize\Console\Commands\RoleListCommand;
+use Marcohern\Jwtauthorize\Console\Commands\RoleShowCommand;
+use Marcohern\Jwtauthorize\Console\Commands\RoleUpdateCommand;
 
 class JwtauthorizeServiceProvider extends ServiceProvider
 {
@@ -56,7 +60,11 @@ class JwtauthorizeServiceProvider extends ServiceProvider
         ], ['jwtauthorize', 'jwtauthorize-migrations']);
 
         $this->commands([
-            JwtauthorizeCommand::class,
+            RoleCreateCommand::class,
+            RoleUpdateCommand::class,
+            RoleDeleteCommand::class,
+            RoleListCommand::class,
+            RoleShowCommand::class,
         ]);
     }
 }
