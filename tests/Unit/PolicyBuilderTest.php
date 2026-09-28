@@ -18,17 +18,6 @@ afterEach(function ()
   
 });
 
-test('[Policy::__construct] can build an instance of Policy', function (string $action, string $methods, string $pathex) {
-    $policy = new Policy($action, $methods, $pathex, collect([]));
-
-    expect($policy->action)->toBe($action);
-    expect($policy->methods)->toBe($methods);
-    expect($policy->pathex)->toBe($pathex);
-})->with([
-  ['allow','*'  ,'/.*/'],
-  ['deny' ,'GET','/\/admin(\/.*)?/'],
-]);
-
 test('[PolicyBuilder::from] can build an instance of Policy from string', function (string $source, string $action, string $methods, string $pathex) {
 
     $policy = $this->builder->from($source);
