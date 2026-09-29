@@ -130,7 +130,7 @@ The pages are server-rendered forms, so they need a **session** login. They run 
 Gate::define('jwtauthorize.manage', fn (User $user) => $user->is_admin);
 ```
 
-In the editor, each row is one policy. Use ⇥ / ⇤ to nest a policy under the one above it, and ↑ / ↓ to reorder. On the role page, ↑ / ↓ reorder the top-level policies. Among matching siblings `deny` wins, so the order is only for readability.
+In the editor, each row is one policy. Use ⇥ / ⇤ to nest a policy under the one above it, and ↑ / ↓ to reorder. ⇅ sorts one level by specificity, longest path regex first: on a row it sorts that policy's direct children, and **Sort top level** sorts the top-level policies. Children always move with their parent. On the role page, ↑ / ↓ reorder the top-level policies. Among matching siblings `deny` wins, so the order is only for readability.
 
 ### Testing roles
 

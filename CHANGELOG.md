@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/marcohern/jwtauthorize/compare/0.4.0...main)
+## [Unreleased](https://github.com/marcohern/jwtauthorize/compare/0.5.0...main)
+
+## [0.5.0](https://github.com/marcohern/jwtauthorize/compare/0.4.0...0.5.0) - 2026-09-29
+
+### Added
+
+- Sort policies by specificity in the role editor: ⇅ on a row sorts its direct children, and **Sort top level** sorts the top-level policies, longest path regex first. Only that one level is sorted: children move with their parent, and equal lengths keep their order.
 
 ## [0.4.0](https://github.com/marcohern/jwtauthorize/compare/0.3.0...0.4.0) - 2026-09-29
 
