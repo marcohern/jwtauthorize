@@ -25,15 +25,13 @@ class RoleDeleteCommand extends RoleCommand
      */
     public function handle(PolicyManager $manager): int
     {
-        $role = $this->argument('role');
+        return $this->runAction(function () use ($manager) {
+            $role = $this->role();
 
-        if (! $this->option('force') && $this->input->isInteractive() && ! $this->confirm("Delete role [$role]?")) {
-            $this->warn('Cancelled.');
+            if (! $this->option('force') && $this->input->isInteractive() && ! $this->confirm("Delete role [$role]?")) {
+                return 'Cancelled.';
+            }
 
-            return self::SUCCESS;
-        }
-
-        return $this->runAction(function () use ($manager, $role) {
             $manager->delete($role);
 
             return "Role [$role] deleted.";

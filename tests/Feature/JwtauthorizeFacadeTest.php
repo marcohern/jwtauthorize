@@ -6,7 +6,7 @@ use Marcohern\Jwtauthorize\Facades\Jwtauthorize;
 use Marcohern\Jwtauthorize\Middleware\Authorize;
 
 it('resolves the package singleton through the facade', function () {
-    expect(Jwtauthorize::getFacadeRoot())->toBe(app(\Marcohern\Jwtauthorize\Jwtauthorize::class));
+    expect(Jwtauthorize::getFacadeRoot())->toBe(app(Marcohern\Jwtauthorize\Jwtauthorize::class));
 });
 
 it('returns the authorize middleware class', function () {

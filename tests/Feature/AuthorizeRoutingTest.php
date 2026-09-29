@@ -11,7 +11,7 @@ use PHPOpenSourceSaver\JWTAuth\Payload;
 /**
  * Fake an authenticated JWT whose `scope` claim holds the given policies.
  */
-function fakeRoutedJwtScope(array|null $scope, bool $authenticated = true): void
+function fakeRoutedJwtScope(?array $scope, bool $authenticated = true): void
 {
     $payload = Mockery::mock(Payload::class);
     $payload->shouldReceive('get')->with('scope')->andReturn($scope);
@@ -41,7 +41,7 @@ it('responds 403 when the request is denied', function (string $uri) {
 
     $this->get($uri)->assertForbidden();
 })->with([
-    'plain path'   => ['/admin/users'],
+    'plain path' => ['/admin/users'],
     'encoded path' => ['/%61dmin/users'],
 ]);
 

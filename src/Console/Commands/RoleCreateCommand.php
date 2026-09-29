@@ -28,7 +28,7 @@ class RoleCreateCommand extends RoleCommand
     public function handle(PolicyManager $manager, PolicyBuilder $builder): int
     {
         return $this->runAction(function () use ($manager, $builder) {
-            $role = $this->argument('role');
+            $role = $this->role();
             $manager->create($role, $this->policies($builder));
 
             return "Role [$role] created.";

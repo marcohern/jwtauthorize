@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 return [
 
-    'placeholder' => 'default',
-
     /*
     |--------------------------------------------------------------------------
     | Guard
@@ -29,5 +27,20 @@ return [
     */
 
     'claim' => env('JWTA_CLAIM', 'scope'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Roles
+    |--------------------------------------------------------------------------
+    |
+    | Where the jwta:role:* commands and the PolicyManager store role files:
+    | the filesystem disk, and the folder inside it.
+    |
+    */
+
+    'roles' => [
+        'disk' => env('JWTA_ROLES_DISK', 'local'),
+        'path' => env('JWTA_ROLES_PATH', 'jwta/roles'),
+    ],
 
 ];

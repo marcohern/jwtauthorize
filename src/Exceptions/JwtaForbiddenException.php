@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Marcohern\Jwtauthorize\Exceptions;
 
+use Marcohern\Jwtauthorize\Middleware\Authorize;
+
 /**
  * Thrown when the token's policies do not allow the request (HTTP 403).
  *
- * @see \Marcohern\Jwtauthorize\Middleware\Authorize
+ * @see Authorize
  */
 class JwtaForbiddenException extends JwtAuthorizeException
 {
-  protected const STATUS = 403;
+    protected const int STATUS = 403;
 }

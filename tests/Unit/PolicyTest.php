@@ -11,6 +11,6 @@ test('[Policy::__construct] can build an instance of Policy', function (string $
     expect($policy->methods)->toBe($methods);
     expect($policy->pathex)->toBe($pathex);
 })->with([
-  ['allow','*'  ,'/.*/'],
-  ['deny' ,'GET','/\/admin(\/.*)?/'],
+    ['allow', '*', '/.*/'],
+    ['deny', 'GET', '/\/admin(\/.*)?/'],
 ]);

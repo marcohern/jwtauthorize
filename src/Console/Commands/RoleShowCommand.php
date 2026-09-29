@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Marcohern\Jwtauthorize\Console\Commands;
 
+use InvalidArgumentException;
 use JsonException;
 use Marcohern\Jwtauthorize\Exceptions\JwtAuthorizeException;
 use Marcohern\Jwtauthorize\PolicyManager;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class RoleShowCommand extends RoleCommand
 {
@@ -27,8 +27,8 @@ class RoleShowCommand extends RoleCommand
     public function handle(PolicyManager $manager): int
     {
         try {
-            $policies = $manager->get($this->argument('role'));
-        } catch (JwtAuthorizeException|BadRequestHttpException|JsonException $e) {
+            $policies = $manager->get($this->role());
+        } catch (JwtAuthorizeException|InvalidArgumentException|JsonException $e) {
             $this->error($e->getMessage());
 
             return self::FAILURE;

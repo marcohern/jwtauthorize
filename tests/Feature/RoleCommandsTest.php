@@ -65,11 +65,11 @@ it('does not create a role from invalid input', function (array $arguments, stri
 
     expect($this->manager->exists('viewer'))->toBeFalse();
 })->with([
-    'invalid policy'   => [['policies' => ['allow PUST /.*/']], 'Policy invalid.'],
-    'invalid regex'    => [['policies' => ['allow GET /(/']], 'Path in policy invalid.'],
-    'no policies'      => [[], 'No policies given.'],
-    'missing file'     => [['--file' => 'missing-policies.json'], 'cannot be read'],
-    'invalid role'     => [['role' => '../etc', 'policies' => ['allow GET /.*/']], 'Role name [../etc] invalid.'],
+    'invalid policy' => [['policies' => ['allow PUST /.*/']], 'Policy invalid.'],
+    'invalid regex' => [['policies' => ['allow GET /(/']], 'Path in policy invalid.'],
+    'no policies' => [[], 'No policies given.'],
+    'missing file' => [['--file' => 'missing-policies.json'], 'cannot be read'],
+    'invalid role' => [['role' => '../etc', 'policies' => ['allow GET /.*/']], 'Role name [../etc] invalid.'],
 ]);
 
 it('does not accept both policy arguments and a file', function () {
@@ -88,7 +88,7 @@ it('does not create a role from a file that is not a policy list', function (str
         ->assertFailed();
 })->with([
     'invalid json' => ['{not json', 'Syntax error'],
-    'json string'  => ['"allow GET /.*/"', 'must hold a JSON list or object'],
+    'json string' => ['"allow GET /.*/"', 'must hold a JSON list or object'],
 ]);
 
 it('updates the policies of a role', function () {
@@ -136,7 +136,7 @@ it('deletes a role without confirmation', function (array $options) {
 
     expect($this->manager->exists('viewer'))->toBeFalse();
 })->with([
-    'forced'          => [['--force' => true]],
+    'forced' => [['--force' => true]],
     'non interactive' => [['--no-interaction' => true]],
 ]);
 

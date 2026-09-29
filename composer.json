@@ -1,11 +1,14 @@
 {
   "$schema": "https://getcomposer.org/schema.json",
   "name": "marcohern/jwtauthorize",
-  "description": "",
+  "description": "Authorize Laravel requests with allow/deny route policies carried in a JWT claim.",
   "keywords": [
     "laravel",
     "marcohern",
-    "jwtauthorize"
+    "jwtauthorize",
+    "jwt",
+    "authorization",
+    "middleware"
   ],
   "homepage": "https://github.com/marcohern/jwtauthorize",
   "license": "MIT",
@@ -18,7 +21,7 @@
   ],
   "require": {
     "php": "^8.3",
-    "illuminate/support": "^12.0||^13.0",
+    "laravel/framework": "^12.0||^13.0",
     "php-open-source-saver/jwt-auth": "^2.9"
   },
   "require-dev": {

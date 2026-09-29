@@ -16,22 +16,22 @@ use Throwable;
  */
 class JwtAuthorizeException extends HttpException
 {
-  /**
-   * HTTP status code the exception renders with.
-   */
-  protected const STATUS = 403;
+    /**
+     * HTTP status code the exception renders with.
+     */
+    protected const int STATUS = 403;
 
-  /**
-   * HTTP headers the exception renders with.
-   */
-  protected const HEADERS = [];
+    /**
+     * HTTP headers the exception renders with.
+     */
+    protected const array HEADERS = [];
 
-  /**
-   * @param  string  $message  Error message.
-   * @param  Throwable|null  $previous  The exception that caused this one.
-   */
-  public function __construct(string $message = '', ?Throwable $previous = null)
-  {
-    parent::__construct(static::STATUS, $message, $previous, static::HEADERS);
-  }
+    /**
+     * @param  string  $message  Error message.
+     * @param  Throwable|null  $previous  The exception that caused this one.
+     */
+    public function __construct(string $message = '', ?Throwable $previous = null)
+    {
+        parent::__construct(static::STATUS, $message, $previous, static::HEADERS);
+    }
 }

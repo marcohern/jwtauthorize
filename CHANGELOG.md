@@ -1,8 +1,35 @@
 # Release Notes
 
-## [Unreleased](https://github.com/marcohern/jwtauthorize/compare/v0.1.0...1.x)
+## [Unreleased](https://github.com/marcohern/jwtauthorize/compare/0.2.0...main)
 
+## [0.2.0](https://github.com/marcohern/jwtauthorize/compare/0.1.1...0.2.0) - 2026-09-28
 
-## [v0.1.0](https://github.com/marcohern/jwtauthorize/compare/...v0.1.0) - 202x-xx-xx
+### Added
+
+- `PolicyManager::claim(...$roles)` returns the policies of one or more roles in the shape carried by the JWT claim.
+- `Policy::toArray()`, the plain-array shape used by role files and JWT claims.
+- `PolicyBuilder` accepts associative-array policies, which is how jwt-auth decodes a claim built with `claim()`.
+- `Parser::validate()`; policies built from arrays, objects and role files are now validated like policy strings.
+- `jwta` middleware alias.
+- `jwtauthorize.roles.disk` and `jwtauthorize.roles.path` config options for role storage.
+
+### Changed
+
+- `HEAD` requests are covered by `GET` policies, matching Laravel's routing.
+- Pathex modifiers `m` and `x` are rejected; they could weaken the full-path anchor.
+- `PolicyBuilder` throws `JwtaParserException` instead of `BadRequestHttpException` for unsupported definitions.
+- `PolicyBuilder::from()` appends `$children` to a `Policy` instead of ignoring them.
+- Requires `laravel/framework` instead of only `illuminate/support`.
+
+### Removed
+
+- Placeholder skeleton resources: migration, view, translation, public assets and routes, and their publish tags (`jwtauthorize-migrations`, `jwtauthorize-views`, `jwtauthorize-lang`, `jwtauthorize-assets`).
+
+## [0.1.1](https://github.com/marcohern/jwtauthorize/compare/0.1.0...0.1.1) - 2026-09-28
+
+- `jwta:role:create`, `jwta:role:update`, `jwta:role:delete`, `jwta:role:list` and `jwta:role:show` commands.
+- `PolicyManager` for storing roles.
+
+## [0.1.0](https://github.com/marcohern/jwtauthorize/releases/tag/0.1.0) - 2026-09-25
 
 Initial pre-release.

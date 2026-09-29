@@ -9,7 +9,7 @@ namespace Marcohern\Jwtauthorize\Exceptions;
  */
 class JwtaUnauthorizedException extends JwtAuthorizeException
 {
-  protected const STATUS = 401;
+    protected const int STATUS = 401;
 
-  protected const HEADERS = ['WWW-Authenticate' => 'Bearer'];
+    protected const array HEADERS = ['WWW-Authenticate' => 'Bearer'];
 }

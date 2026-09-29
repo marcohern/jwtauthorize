@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Marcohern\Jwtauthorize\Exceptions\JwtaParserException;
 use Marcohern\Jwtauthorize\Exceptions\JwtaRoleException;
 use Marcohern\Jwtauthorize\Policy;
 use Marcohern\Jwtauthorize\PolicyBuilder;
@@ -98,7 +99,48 @@ it('rejects invalid role names', function (string $role) {
     $this->manager->create($role, $this->allowAll);
 })->throws(JwtaRoleException::class)->with([
     'parent traversal' => ['../etc'],
-    'sub folder'       => ['a/b'],
-    'empty'            => [''],
-    'dot'              => ['admin.json'],
+    'sub folder' => ['a/b'],
+    'empty' => [''],
+    'dot' => ['admin.json'],
 ]);
+
+it('returns the policies of roles in the claim shape', function () {
+    $this->manager->create('viewer', app(PolicyBuilder::class)->fromList(['allow GET /.*/']));
+    $this->manager->create('blocked', app(PolicyBuilder::class)->fromList([
+        'deny * /\/admin(\/.*)?/' => ['allow GET /\/admin\/reports/'],
+    ]));
+
+    expect($this->manager->claim('viewer', 'blocked'))->toBe([
+        ['action' => 'allow', 'methods' => 'GET', 'pathex' => '/.*/', 'children' => []],
+        ['action' => 'deny', 'methods' => '*', 'pathex' => '/\/admin(\/.*)?/', 'children' => [
+            ['action' => 'allow', 'methods' => 'GET', 'pathex' => '/\/admin\/reports/', 'children' => []],
+        ]],
+    ]);
+});
+
+it('does not build a claim for a missing role', function () {
+    $this->manager->claim('ghost');
+})->throws(JwtaRoleException::class, 'Role [ghost] not found.');
+
+it('stores roles on the configured disk and path', function () {
+    Storage::fake('roles');
+    config(['jwtauthorize.roles.disk' => 'roles', 'jwtauthorize.roles.path' => 'acl/']);
+
+    $this->manager->create('admin', $this->allowAll);
+
+    Storage::disk('roles')->assertExists('acl/admin.json');
+    Storage::disk('local')->assertMissing('jwta/roles/admin.json');
+    expect($this->manager->all()->all())->toBe(['admin']);
+});
+
+it('rejects a role file that is not a list of policies', function () {
+    Storage::disk('local')->put('jwta/roles/broken.json', '"allow * /.*/"');
+
+    $this->manager->get('broken');
+})->throws(JwtaRoleException::class, 'Role [broken] file is not a list of policies.');
+
+it('rejects a role file holding an invalid policy', function () {
+    Storage::disk('local')->put('jwta/roles/broken.json', '[{"action":"Allow","methods":"*","pathex":"/.*/"}]');
+
+    $this->manager->get('broken');
+})->throws(JwtaParserException::class, 'Policy invalid.');

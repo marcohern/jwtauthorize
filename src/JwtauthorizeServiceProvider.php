@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Marcohern\Jwtauthorize;
 
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Marcohern\Jwtauthorize\Console\Commands\RoleCreateCommand;
 use Marcohern\Jwtauthorize\Console\Commands\RoleDeleteCommand;
 use Marcohern\Jwtauthorize\Console\Commands\RoleListCommand;
 use Marcohern\Jwtauthorize\Console\Commands\RoleShowCommand;
 use Marcohern\Jwtauthorize\Console\Commands\RoleUpdateCommand;
+use Marcohern\Jwtauthorize\Middleware\Authorize;
 
 class JwtauthorizeServiceProvider extends ServiceProvider
 {
@@ -29,11 +31,7 @@ class JwtauthorizeServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__.'/../routes/jwtauthorize.php');
-
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'jwtauthorize');
-
-        $this->loadTranslationsFrom(__DIR__.'/../lang', 'jwtauthorize');
+        $this->app->make(Router::class)->aliasMiddleware('jwta', Authorize::class);
 
         if (! $this->app->runningInConsole()) {
             return;
@@ -42,22 +40,6 @@ class JwtauthorizeServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/jwtauthorize.php' => config_path('jwtauthorize.php'),
         ], ['jwtauthorize', 'jwtauthorize-config']);
-
-        $this->publishes([
-            __DIR__.'/../resources/views' => resource_path('views/vendor/jwtauthorize'),
-        ], ['jwtauthorize', 'jwtauthorize-views']);
-
-        $this->publishes([
-            __DIR__.'/../lang' => $this->app->langPath('vendor/jwtauthorize'),
-        ], ['jwtauthorize', 'jwtauthorize-lang']);
-
-        $this->publishes([
-            __DIR__.'/../public' => public_path('vendor/jwtauthorize'),
-        ], ['jwtauthorize', 'jwtauthorize-assets']);
-
-        $this->publishesMigrations([
-            __DIR__.'/../database/migrations' => database_path('migrations'),
-        ], ['jwtauthorize', 'jwtauthorize-migrations']);
 
         $this->commands([
             RoleCreateCommand::class,
