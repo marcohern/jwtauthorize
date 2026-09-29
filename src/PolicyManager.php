@@ -37,7 +37,7 @@ class PolicyManager
     /**
      * Allowed role name pattern; also keeps role files inside the roles folder.
      */
-    private const string ROLE_REGEX = '/^[A-Za-z0-9_-]+$/';
+    private const ROLE_REGEX = '/^[A-Za-z0-9_-]+$/';
 
     /**
      * @param  PolicyBuilder  $builder  Builder used to load policies from role files.
