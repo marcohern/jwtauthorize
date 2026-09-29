@@ -12,6 +12,7 @@ use Marcohern\Jwtauthorize\Console\Commands\RoleCreateCommand;
 use Marcohern\Jwtauthorize\Console\Commands\RoleDeleteCommand;
 use Marcohern\Jwtauthorize\Console\Commands\RoleListCommand;
 use Marcohern\Jwtauthorize\Console\Commands\RoleShowCommand;
+use Marcohern\Jwtauthorize\Console\Commands\RoleTestCommand;
 use Marcohern\Jwtauthorize\Console\Commands\RoleUpdateCommand;
 use Marcohern\Jwtauthorize\Middleware\Authorize;
 
@@ -56,6 +57,7 @@ class JwtauthorizeServiceProvider extends ServiceProvider
             RoleDeleteCommand::class,
             RoleListCommand::class,
             RoleShowCommand::class,
+            RoleTestCommand::class,
         ]);
     }
 

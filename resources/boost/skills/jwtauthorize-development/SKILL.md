@@ -33,6 +33,8 @@ Use this skill when a Laravel application needs to authorize requests with `marc
   then issue tokens with `app(\Marcohern\Jwtauthorize\PolicyManager::class)->claim('role-a', 'role-b')`.
 - For a browser UI to manage roles, set `JWTA_UI=true`, make sure `jwtauthorize.ui.middleware` has a session login
   (default `['web', 'auth']`), and define the `jwtauthorize.manage` gate for the users allowed to manage roles.
+- To check what a role allows, run `php artisan jwta:role:test <role> <METHOD> <path>` (exit 0 allowed, 1 denied),
+  or open the Test policies page (`/jwta/test`). Both show the deciding policy and its parents.
 
 ### Policy grammar
 

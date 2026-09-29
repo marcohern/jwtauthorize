@@ -1,6 +1,18 @@
 # Release Notes
 
-## [Unreleased](https://github.com/marcohern/jwtauthorize/compare/0.3.0...main)
+## [Unreleased](https://github.com/marcohern/jwtauthorize/compare/0.4.0...main)
+
+## [0.4.0](https://github.com/marcohern/jwtauthorize/compare/0.3.0...0.4.0) - 2026-09-29
+
+### Added
+
+- Role tester: the **Test policies** page (`jwtauthorize.test`, linked from every role) and the `jwta:role:test {role} {method} {path}` command. They show whether a role allows a request, the deciding policy and its parents, and how every policy matched. The command exits 0 when allowed and 1 when denied.
+- `PolicyEvaluator`, the decision shared by the middleware and the tester, returning an `Evaluation` trace.
+- `Parser::methods()`. `Parser::methodMatches()` and `Parser::uriMatches()` are now public.
+
+### Changed
+
+- The `Authorize` middleware takes a `PolicyEvaluator` instead of a `Parser`. The decisions are unchanged.
 
 ## [0.3.0](https://github.com/marcohern/jwtauthorize/compare/0.2.0...0.3.0) - 2026-09-28
 

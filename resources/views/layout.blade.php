@@ -23,6 +23,8 @@
         header { background: var(--surface); border-bottom: 1px solid var(--border); }
         header .wrap { display: flex; align-items: center; gap: 1rem; padding-block: .75rem; }
         header a { color: var(--text); font-weight: 600; text-decoration: none; }
+        header a.nav { color: var(--muted); font-weight: 500; }
+        header a.nav:hover { color: var(--text); }
         .wrap { max-width: 64rem; margin: 0 auto; padding-inline: 1rem; }
         main.wrap { padding-block: 1.5rem 3rem; }
         h1 { font-size: 1.4rem; margin: 0; }
@@ -67,6 +69,7 @@
 <header>
     <div class="wrap">
         <a href="{{ route('jwtauthorize.roles.index') }}">Jwtauthorize · Roles</a>
+        <a class="nav" href="{{ route('jwtauthorize.test') }}">Test policies</a>
     </div>
 </header>
 <main class="wrap">

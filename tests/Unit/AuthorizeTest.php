@@ -9,6 +9,7 @@ use Marcohern\Jwtauthorize\Exceptions\JwtaUnauthorizedException;
 use Marcohern\Jwtauthorize\Middleware\Authorize;
 use Marcohern\Jwtauthorize\Parser;
 use Marcohern\Jwtauthorize\PolicyBuilder;
+use Marcohern\Jwtauthorize\PolicyEvaluator;
 use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 use PHPOpenSourceSaver\JWTAuth\Payload;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,7 +41,7 @@ function fakeJwtScope(mixed $scope): void
 
 beforeEach(function () {
     $parser = new Parser;
-    $this->middleware = new Authorize(new PolicyBuilder($parser), $parser);
+    $this->middleware = new Authorize(new PolicyBuilder($parser), new PolicyEvaluator($parser));
     $this->next = fn (Request $request): Response => new Response('ok');
 });
 

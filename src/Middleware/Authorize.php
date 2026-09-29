@@ -6,15 +6,14 @@ namespace Marcohern\Jwtauthorize\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use LogicException;
 use Marcohern\Jwtauthorize\Exceptions\JwtaForbiddenException;
-use Marcohern\Jwtauthorize\Exceptions\JwtaParserException;
 use Marcohern\Jwtauthorize\Exceptions\JwtaUnauthorizedException;
 use Marcohern\Jwtauthorize\Jwtauthorize;
 use Marcohern\Jwtauthorize\Parser;
 use Marcohern\Jwtauthorize\Policy;
 use Marcohern\Jwtauthorize\PolicyBuilder;
+use Marcohern\Jwtauthorize\PolicyEvaluator;
 use Marcohern\Jwtauthorize\PolicyManager;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -40,7 +39,7 @@ use Throwable;
  *    the same path Laravel routes on, and must match the whole path.
  *  - A matching policy's children refine it; when none of them match, the
  *    policy itself decides.
- *  - Among matching siblings, `deny` wins over `allow`.
+ *  - Among matching siblings, `deny` wins over `allow` (see {@see PolicyEvaluator}).
  *  - Anything else fails closed: no match, an empty or malformed claim, or a
  *    policy that fails to evaluate is a 403; a missing or invalid token is a 401.
  */
@@ -48,11 +47,11 @@ class Authorize
 {
     /**
      * @param  PolicyBuilder  $builder  Builder used to load the claim's policies.
-     * @param  Parser  $parser  Parser used to match policies against the request.
+     * @param  PolicyEvaluator  $evaluator  Decides whether the policies allow the request.
      */
     public function __construct(
         private readonly PolicyBuilder $builder,
-        private readonly Parser $parser) {}
+        private readonly PolicyEvaluator $evaluator) {}
 
     /**
      * Authorize the request against the token's policies.
@@ -68,12 +67,12 @@ class Authorize
         $path = '/'.ltrim($request->decodedPath(), '/');
 
         try {
-            $policy = $this->findDeepMatch($request->method(), $path, $this->builder->fromList($scope));
+            $allowed = $this->evaluator->evaluate($this->builder->fromList($scope), $request->method(), $path)->allowed();
         } catch (Throwable $e) {
             throw new JwtaForbiddenException('Access denied.', $e);
         }
 
-        if ($policy?->action !== 'allow') {
+        if (! $allowed) {
             throw new JwtaForbiddenException('Access denied.');
         }
 
@@ -109,37 +108,5 @@ class Authorize
         }
 
         return $scope;
-    }
-
-    /**
-     * Find the policy that decides the request.
-     *
-     * Every matching sibling is evaluated, descending into its children; a
-     * `deny` from any of them wins, otherwise the first `allow` decides.
-     *
-     * @param  string  $method  Request HTTP method.
-     * @param  string  $path  Decoded request path.
-     * @param  Collection<int, Policy>  $policies  Policies to evaluate.
-     * @return Policy|null The deciding policy, or null when none match.
-     *
-     * @throws JwtaParserException When a policy fails to evaluate.
-     */
-    protected function findDeepMatch(string $method, string $path, Collection $policies): ?Policy
-    {
-        $decision = null;
-        foreach ($policies as $policy) {
-            if (! $this->parser->isMatch($policy, $method, $path)) {
-                continue;
-            }
-
-            $effective = $this->findDeepMatch($method, $path, $policy->children) ?? $policy;
-
-            if ($effective->action === 'deny') {
-                return $effective;
-            }
-            $decision ??= $effective;
-        }
-
-        return $decision;
     }
 }

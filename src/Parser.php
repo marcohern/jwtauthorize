@@ -147,6 +147,16 @@ class Parser
     }
 
     /**
+     * Get the HTTP methods a policy can list.
+     *
+     * @return list<string>
+     */
+    public function methods(): array
+    {
+        return explode('|', self::METHODS);
+    }
+
+    /**
      * Check whether an HTTP method is covered by a policy.
      *
      * A `*` policy accepts any method listed in {@see Parser::METHODS};
@@ -158,7 +168,7 @@ class Parser
      * @param  string  $method  Request HTTP method, e.g. `GET`.
      * @return bool True when the method is covered.
      */
-    protected function methodMatches(Policy $policy, string $method): bool
+    public function methodMatches(Policy $policy, string $method): bool
     {
         $methods = $policy->methods === '*'
           ? explode('|', self::METHODS)
@@ -184,7 +194,7 @@ class Parser
      * @throws JwtaParserException When the pathex is invalid or fails to evaluate
      *                             (e.g. hits the PCRE backtrack limit).
      */
-    protected function uriMatches(Policy $policy, string $uri): bool
+    public function uriMatches(Policy $policy, string $uri): bool
     {
         $result = @preg_match($this->anchor($policy->pathex), $uri);
 

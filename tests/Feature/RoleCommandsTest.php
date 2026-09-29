@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Marcohern\Jwtauthorize\Policy;
+use Marcohern\Jwtauthorize\PolicyBuilder;
 use Marcohern\Jwtauthorize\PolicyManager;
 
 /**
@@ -178,4 +180,55 @@ it('does not show a missing role', function () {
 
 it('no longer registers the placeholder command', function () {
     expect(Artisan::all())->not->toHaveKey('jwtauthorize:placeholder');
+});
+
+it('tests an allowed request against a role', function () {
+    $this->manager->create('editor', app(PolicyBuilder::class)->fromList([
+        'deny * /\/admin(\/.*)?/' => ['allow GET /\/admin\/reports/'],
+        'allow GET /.*/',
+    ]));
+
+    $this->artisan('jwta:role:test', ['role' => 'editor', 'method' => 'get', 'path' => '/admin/reports?x=1'])
+        ->expectsOutputToContain('ALLOWED  GET /admin/reports  (role: editor)')
+        ->expectsOutputToContain('allow GET /\/admin\/reports/  ← decides')
+        ->assertSuccessful();
+});
+
+it('tests a denied request against a role', function () {
+    $this->manager->create('editor', app(PolicyBuilder::class)->fromList([
+        'deny * /\/admin(\/.*)?/' => ['allow GET /\/admin\/reports/'],
+        'allow GET /.*/',
+    ]));
+
+    $this->artisan('jwta:role:test', ['role' => 'editor', 'method' => 'POST', 'path' => '/admin/users'])
+        ->expectsOutputToContain('DENIED  POST /admin/users  (role: editor)')
+        ->expectsOutputToContain('deny * /\/admin(\/.*)?/  ← decides')
+        ->assertFailed();
+});
+
+it('reports when no policy matched', function () {
+    $this->manager->create('viewer', collect([new Policy('allow', 'GET', '/.*/')]));
+
+    $this->artisan('jwta:role:test', ['role' => 'viewer', 'method' => 'DELETE', 'path' => '/x'])
+        ->expectsOutputToContain('No policy matched.')
+        ->assertFailed();
+});
+
+it('rejects an unknown role or method when testing', function (string $role, string $method, string $message) {
+    $this->manager->create('viewer', collect([new Policy('allow', 'GET', '/.*/')]));
+
+    $this->artisan('jwta:role:test', ['role' => $role, 'method' => $method, 'path' => '/'])
+        ->expectsOutputToContain($message)
+        ->assertFailed();
+})->with([
+    'unknown role' => ['ghost', 'GET', 'Role [ghost] not found.'],
+    'bad method' => ['viewer', 'PULL', 'Method [PULL] invalid.'],
+]);
+
+it('prints policies with angle brackets literally', function () {
+    $this->manager->create('named', collect([new Policy('allow', 'GET', '/\/users\/(?<id>\d+)/')]));
+
+    $this->artisan('jwta:role:test', ['role' => 'named', 'method' => 'GET', 'path' => '/users/7'])
+        ->expectsOutputToContain('allow GET /\/users\/(?<id>\d+)/')
+        ->assertSuccessful();
 });

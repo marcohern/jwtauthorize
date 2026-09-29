@@ -132,6 +132,30 @@ Gate::define('jwtauthorize.manage', fn (User $user) => $user->is_admin);
 
 In the editor, each row is one policy. Use ⇥ / ⇤ to nest a policy under the one above it, and ↑ / ↓ to reorder. On the role page, ↑ / ↓ reorder the top-level policies. Among matching siblings `deny` wins, so the order is only for readability.
 
+### Testing roles
+
+To check what a role allows, open **Test policies** (`/jwta/test`) and choose a role, a method and a path. You can also start from a role's **Test** button. A full URL works too: the page tests its path, without the query string, the same way the middleware does. The page shows:
+
+- **Allowed** or **Denied**.
+- The policy that decided, and the parent policies it sits under.
+- Every policy of the role, with whether its method and path matched. Rows on the decision path are highlighted. Rows that were never checked are faded, either because their parent didn't match or because a `deny` had already decided.
+
+The same check is available from the terminal. It exits with 0 when the request is allowed and 1 when it is denied, so you can use it in scripts:
+
+```bash
+php artisan jwta:role:test editor GET /admin/reports
+```
+
+```text
+ALLOWED  GET /admin/reports  (role: editor)
+
+✓ ▶ deny * /\/admin(\/.*)?/
+✓ ▶   allow GET /\/admin\/reports/  ← decides
+·     allow GET /.*/
+```
+
+The tester and the middleware share the same `PolicyEvaluator`, so they always agree. Among matching siblings the first `deny` decides. Otherwise the first matching `allow` does, so when several allows match, the order decides which one is reported, but never whether the request is allowed.
+
 To restyle the pages, publish the views:
 
 ```bash

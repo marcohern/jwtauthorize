@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Marcohern\Jwtauthorize\Http\Controllers\PolicyTestController;
 use Marcohern\Jwtauthorize\Http\Controllers\RoleController;
 
 /*
@@ -15,6 +16,8 @@ use Marcohern\Jwtauthorize\Http\Controllers\RoleController;
 | jwtauthorize.manage gate.
 |
 */
+
+Route::get('/test', PolicyTestController::class)->name('jwtauthorize.test');
 
 // "create" is excluded so it cannot be read as a role name.
 Route::name('jwtauthorize.roles.')->prefix('roles')->where(['role' => '(?!create$)[A-Za-z0-9_-]+'])->controller(RoleController::class)->group(function () {

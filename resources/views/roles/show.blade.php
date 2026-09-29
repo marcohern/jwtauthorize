@@ -7,6 +7,7 @@
         <h1>Role <code>{{ $role }}</code></h1>
         <div class="actions">
             <a class="btn" href="{{ route('jwtauthorize.roles.index') }}">All roles</a>
+            <a class="btn" href="{{ route('jwtauthorize.test', ['role' => $role]) }}">Test</a>
             <a class="btn btn-primary" href="{{ route('jwtauthorize.roles.edit', $role) }}">Edit</a>
             @include('jwtauthorize::roles._delete', ['role' => $role, 'small' => false])
         </div>
