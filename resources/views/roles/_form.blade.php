@@ -42,10 +42,14 @@
         A policy is <code>action methods pathex</code>. The regex must match the whole path, e.g.
         <code>/\/admin(\/.*)?/</code> for <code>/admin</code> and everything under it.
         Indent a policy to make it a child that refines the policy above it.
+        <code>⇅</code> sorts one level by specificity: longer path regexes first; children move with their parent.
     </p>
 
     <div class="bar" style="margin-top: 1rem">
-        <button class="btn" type="button" data-op="add">+ Add policy</button>
+        <div class="actions">
+            <button class="btn" type="button" data-op="add">+ Add policy</button>
+            <button class="btn" type="button" data-op="sort-root" title="Sort top-level policies, most specific (longest path regex) first">⇅ Sort top level</button>
+        </div>
         <div class="actions">
             <a class="btn" href="{{ isset($role) ? route('jwtauthorize.roles.show', $role) : route('jwtauthorize.roles.index') }}">Cancel</a>
             <button class="btn btn-primary" type="submit">Save</button>
@@ -88,6 +92,25 @@
         return other && depth(other) === depth(row) ? other : null;
     };
 
+    /** The direct children of a row. */
+    const children = (row) => block(row).slice(1).filter((item) => depth(item) === depth(row) + 1);
+
+    const topLevel = () => rows().filter((row) => depth(row) === 0);
+
+    const pathLength = (row) => row.querySelector('[data-field="pathex"]').value.length;
+
+    /** Reorder adjacent siblings, longest path regex first, keeping each one's descendants under it. */
+    const sortSiblings = (siblings) => {
+        if (siblings.length < 2) return;
+
+        const anchor = siblings[0].previousElementSibling;
+        const blocks = siblings.map((sibling) => ({ length: pathLength(sibling), rows: block(sibling) }));
+        const sorted = blocks.sort((a, b) => b.length - a.length).flatMap((item) => item.rows);
+
+        if (anchor) anchor.after(...sorted);
+        else body.prepend(...sorted);
+    };
+
     const canIndent = (row) => {
         const above = row.previousElementSibling;
         return above !== null && depth(above) >= depth(row);
@@ -113,7 +136,9 @@
             row.querySelector('[data-op="down"]').disabled = !nextSibling(row);
             row.querySelector('[data-op="outdent"]').disabled = depth(row) === 0;
             row.querySelector('[data-op="indent"]').disabled = !canIndent(row);
+            row.querySelector('[data-op="sort"]').disabled = children(row).length < 2;
         });
+        form.querySelector('[data-op="sort-root"]').disabled = topLevel().length < 2;
     };
 
     const operations = {
@@ -135,6 +160,9 @@
             block(row).forEach((item) => item.remove());
             if (rows().length === 0) addRow();
         },
+        sort(row) {
+            sortSiblings(children(row));
+        },
     };
 
     form.addEventListener('click', (event) => {
@@ -145,6 +173,8 @@
         if (operation === 'add') {
             addRow();
             rows().at(-1).querySelector('[data-field="pathex"]').focus();
+        } else if (operation === 'sort-root') {
+            sortSiblings(topLevel());
         } else {
             operations[operation](button.closest('tr'));
         }

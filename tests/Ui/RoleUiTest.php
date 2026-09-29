@@ -109,6 +109,13 @@ it('fills the edit form with the role as rows', function () {
         ->assertSee('name="policies[2][depth]" value="1"', false);
 });
 
+it('offers sorting by specificity per level in the role form', function () {
+    $this->get('/jwta/roles/editor/edit')
+        ->assertOk()
+        ->assertSee('data-op="sort-root"', false)
+        ->assertSee('data-op="sort"', false);
+});
+
 it('replaces the policies of a role', function () {
     $this->put('/jwta/roles/editor', [
         'policies' => [['action' => 'deny', 'methods' => 'POST', 'pathex' => '/.*/', 'depth' => 0]],

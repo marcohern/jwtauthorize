@@ -30,6 +30,7 @@
             <button class="btn btn-sm" type="button" data-op="down" title="Move down" aria-label="Move down">↓</button>
             <button class="btn btn-sm" type="button" data-op="outdent" title="Outdent" aria-label="Outdent">⇤</button>
             <button class="btn btn-sm" type="button" data-op="indent" title="Make it a child of the policy above" aria-label="Indent">⇥</button>
+            <button class="btn btn-sm" type="button" data-op="sort" title="Sort children, most specific (longest path regex) first" aria-label="Sort children">⇅</button>
             <button class="btn btn-sm btn-danger" type="button" data-op="remove" title="Remove with its children" aria-label="Remove">✕</button>
         </div>
     </td>
