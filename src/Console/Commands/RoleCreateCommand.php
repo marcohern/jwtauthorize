@@ -9,6 +9,8 @@ use Marcohern\Jwtauthorize\PolicyManager;
 
 class RoleCreateCommand extends RoleCommand
 {
+    use ReadsPolicies;
+
     /**
      * The command signature.
      */
@@ -28,7 +30,7 @@ class RoleCreateCommand extends RoleCommand
     public function handle(PolicyManager $manager, PolicyBuilder $builder): int
     {
         return $this->runAction(function () use ($manager, $builder) {
-            $role = $this->role();
+            $role = $this->argument('role');
             $manager->create($role, $this->policies($builder));
 
             return "Role [$role] created.";

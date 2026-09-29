@@ -31,6 +31,8 @@ Use this skill when a Laravel application needs to authorize requests with `marc
   `auth('api')->claims(['scope' => [...]])->attempt($credentials)`.
 - For reusable policy sets, create roles with `php artisan jwta:role:create <role> "<policy>" ...` or `--file=<json>`,
   then issue tokens with `app(\Marcohern\Jwtauthorize\PolicyManager::class)->claim('role-a', 'role-b')`.
+- For a browser UI to manage roles, set `JWTA_UI=true`, make sure `jwtauthorize.ui.middleware` has a session login
+  (default `['web', 'auth']`), and define the `jwtauthorize.manage` gate for the users allowed to manage roles.
 
 ### Policy grammar
 

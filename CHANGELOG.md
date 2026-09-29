@@ -1,6 +1,18 @@
 # Release Notes
 
-## [Unreleased](https://github.com/marcohern/jwtauthorize/compare/0.2.0...main)
+## [Unreleased](https://github.com/marcohern/jwtauthorize/compare/0.3.0...main)
+
+## [0.3.0](https://github.com/marcohern/jwtauthorize/compare/0.2.0...0.3.0) - 2026-09-28
+
+### Added
+
+- Role management pages to list, view, create, edit, reorder and delete roles (`RoleController`, `jwtauthorize::roles.*` views). Off by default: enable with `jwtauthorize.ui.enabled` (`JWTA_UI`). The pages run behind `jwtauthorize.ui.middleware` and the `jwtauthorize.manage` gate, which only allows the local environment unless the app defines it.
+- `PolicyManager::move()` to move a top-level policy up or down.
+- `jwtauthorize-views` publish tag.
+
+### Changed
+
+- `jwta:role:list` no longer extends the internal `RoleCommand` base class.
 
 ## [0.2.0](https://github.com/marcohern/jwtauthorize/compare/0.1.1...0.2.0) - 2026-09-28
 

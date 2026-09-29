@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Marcohern\Jwtauthorize\Console\Commands;
 
-use InvalidArgumentException;
 use JsonException;
 use Marcohern\Jwtauthorize\Exceptions\JwtAuthorizeException;
 use Marcohern\Jwtauthorize\PolicyManager;
@@ -27,8 +26,8 @@ class RoleShowCommand extends RoleCommand
     public function handle(PolicyManager $manager): int
     {
         try {
-            $policies = $manager->get($this->role());
-        } catch (JwtAuthorizeException|InvalidArgumentException|JsonException $e) {
+            $policies = $manager->get($this->argument('role'));
+        } catch (JwtAuthorizeException|JsonException $e) {
             $this->error($e->getMessage());
 
             return self::FAILURE;

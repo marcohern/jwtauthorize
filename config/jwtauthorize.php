@@ -43,4 +43,23 @@ return [
         'path' => env('JWTA_ROLES_PATH', 'jwta/roles'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Role management UI
+    |--------------------------------------------------------------------------
+    |
+    | Web pages to list, view, create, edit, reorder and delete roles, served
+    | under the prefix (e.g. /jwta/roles). They are only registered when
+    | enabled. Besides the middleware, every page requires the
+    | "jwtauthorize.manage" gate, which only allows the local environment
+    | unless the application defines it.
+    |
+    */
+
+    'ui' => [
+        'enabled' => (bool) env('JWTA_UI', false),
+        'prefix' => env('JWTA_UI_PREFIX', 'jwta'),
+        'middleware' => ['web', 'auth'],
+    ],
+
 ];

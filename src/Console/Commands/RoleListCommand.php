@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Marcohern\Jwtauthorize\Console\Commands;
 
+use Illuminate\Console\Command;
 use Marcohern\Jwtauthorize\PolicyManager;
 
-class RoleListCommand extends RoleCommand
+class RoleListCommand extends Command
 {
     /**
      * The command signature.

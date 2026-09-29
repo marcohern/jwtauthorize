@@ -9,6 +9,8 @@ use Marcohern\Jwtauthorize\PolicyManager;
 
 class RoleUpdateCommand extends RoleCommand
 {
+    use ReadsPolicies;
+
     /**
      * The command signature.
      */
@@ -28,7 +30,7 @@ class RoleUpdateCommand extends RoleCommand
     public function handle(PolicyManager $manager, PolicyBuilder $builder): int
     {
         return $this->runAction(function () use ($manager, $builder) {
-            $role = $this->role();
+            $role = $this->argument('role');
             $manager->update($role, $this->policies($builder));
 
             return "Role [$role] updated.";

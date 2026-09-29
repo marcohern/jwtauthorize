@@ -144,3 +144,27 @@ it('rejects a role file holding an invalid policy', function () {
 
     $this->manager->get('broken');
 })->throws(JwtaParserException::class, 'Policy invalid.');
+
+it('moves a top-level policy with its children', function () {
+    $this->manager->create('editor', app(PolicyBuilder::class)->fromList([
+        'allow GET /.*/',
+        'deny * /\/admin(\/.*)?/' => ['allow GET /\/admin\/reports/'],
+    ]));
+
+    $this->manager->move('editor', 1, 'up');
+
+    $policies = $this->manager->get('editor');
+    expect($policies[0]->pathex)->toBe('/\/admin(\/.*)?/');
+    expect($policies[0]->children)->toHaveCount(1);
+    expect($policies[1]->pathex)->toBe('/.*/');
+});
+
+it('does not move a policy past either end', function (int $index, string $direction) {
+    $this->manager->create('editor', $this->allowAll);
+
+    $this->manager->move('editor', $index, $direction);
+})->throws(JwtaRoleException::class, 'cannot move')->with([
+    'first up' => [0, 'up'],
+    'last down' => [0, 'down'],
+    'negative' => [-1, 'down'],
+]);

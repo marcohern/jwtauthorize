@@ -37,7 +37,7 @@ class PolicyManager
     /**
      * Allowed role name pattern; also keeps role files inside the roles folder.
      */
-    private const ROLE_REGEX = '/^[A-Za-z0-9_-]+$/';
+    private const string ROLE_REGEX = '/^[A-Za-z0-9_-]+$/';
 
     /**
      * @param  PolicyBuilder  $builder  Builder used to load policies from role files.
@@ -121,6 +121,31 @@ class PolicyManager
         }
 
         return $this->builder->fromList($policies);
+    }
+
+    /**
+     * Move a top-level policy of a role one position up or down.
+     *
+     * Evaluation does not depend on the order (among matching siblings `deny`
+     * wins), so this only changes how the role reads.
+     *
+     * @param  string  $role  Role name.
+     * @param  int  $index  Position of the policy, starting at 0.
+     * @param  'up'|'down'  $direction  Where to move it.
+     *
+     * @throws JwtaRoleException When the role is missing, or the policy cannot move that way.
+     */
+    public function move(string $role, int $index, string $direction): void
+    {
+        $policies = $this->get($role)->values()->all();
+        $target = $direction === 'up' ? $index - 1 : $index + 1;
+
+        if (! isset($policies[$index], $policies[$target])) {
+            throw new JwtaRoleException("Policy [$index] of role [$role] cannot move $direction.");
+        }
+
+        [$policies[$index], $policies[$target]] = [$policies[$target], $policies[$index]];
+        $this->write($role, collect($policies));
     }
 
     /**

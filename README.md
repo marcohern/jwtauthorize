@@ -34,6 +34,9 @@ php artisan vendor:publish --tag="jwtauthorize-config"
 | `claim` | `JWTA_CLAIM` | `scope` | The JWT claim holding the policies. |
 | `roles.disk` | `JWTA_ROLES_DISK` | `local` | Filesystem disk holding role files. |
 | `roles.path` | `JWTA_ROLES_PATH` | `jwta/roles` | Folder, inside the disk, holding role files. |
+| `ui.enabled` | `JWTA_UI` | `false` | Register the role management pages. |
+| `ui.prefix` | `JWTA_UI_PREFIX` | `jwta` | URL prefix of the pages, e.g. `/jwta/roles`. |
+| `ui.middleware` | | `['web', 'auth']` | Middleware in front of the pages. |
 
 ## Usage
 
@@ -115,6 +118,25 @@ $token = auth('api')
 ```
 
 The policies are copied into the token when it is issued, so later role changes apply only to tokens issued after the change.
+
+### Managing roles in the browser
+
+The package ships pages to list, view, create, edit, reorder and delete roles. They are off by default. To turn them on, set `JWTA_UI=true`; the pages are then served at `/jwta/roles`.
+
+The pages are server-rendered forms, so they need a **session** login. They run behind `ui.middleware`, which defaults to `['web', 'auth']`. A bearer token alone won't work in a browser. Every page also requires the `jwtauthorize.manage` gate. Unless you define that gate, it only allows the `local` environment. Define it to choose who can manage roles:
+
+```php
+// AppServiceProvider::boot()
+Gate::define('jwtauthorize.manage', fn (User $user) => $user->is_admin);
+```
+
+In the editor, each row is one policy. Use ⇥ / ⇤ to nest a policy under the one above it, and ↑ / ↓ to reorder. On the role page, ↑ / ↓ reorder the top-level policies. Among matching siblings `deny` wins, so the order is only for readability.
+
+To restyle the pages, publish the views:
+
+```bash
+php artisan vendor:publish --tag="jwtauthorize-views"
+```
 
 ## Changelog
 
